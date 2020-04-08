@@ -1169,4 +1169,8 @@ nav li[class] {
     color: var(--link);
 }
 
+aside.seealso::before {
+    content: "See also:";
+    font: var(--headline);
+}
 """#
