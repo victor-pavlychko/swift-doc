@@ -4,6 +4,7 @@ import SwiftSemantics
 import HypertextLiteral
 
 struct HomePage: Page {
+    var brief: CommonMark.Document?
     var module: Module
 
     var classes: [Symbol] = []
@@ -15,7 +16,8 @@ struct HomePage: Page {
     var globalFunctionNames: Set<String> = []
     var globalVariableNames: Set<String> = []
 
-    init(module: Module) {
+    init(module: Module, brief: CommonMark.Document? = nil) {
+        self.brief = brief
         self.module = module
 
         for symbol in module.interface.topLevelSymbols.filter({ $0.isPublic }) {
@@ -96,6 +98,13 @@ struct HomePage: Page {
 
     var html: HypertextLiteral.HTML {
         return #"""
+        \#(brief.flatMap { brief in
+            return #"""
+            <section id="brief">
+                \#(brief.html)
+            </section>
+        """#
+        } ?? "" as HypertextLiteral.HTML)
         \#([
             ("Classes", classes),
             ("Structures", structures),

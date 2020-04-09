@@ -1,4 +1,5 @@
 import ArgumentParser
+import CommonMark
 import Foundation
 import SwiftSemantics
 import struct SwiftSemantics.Protocol
@@ -15,6 +16,11 @@ extension SwiftDoc {
         struct Options: ParsableArguments {
             @Argument(help: "One or more paths to Swift files")
             var inputs: [String]
+
+            @Option(name: .shortAndLong,
+                    default: nil,
+                    help: "The path to the CommonMark file for the home page (html output only)")
+            var brief: String?
 
             @Option(name: [.long, .customShort("n")],
                     help: "The name of the module")
@@ -92,7 +98,11 @@ extension SwiftDoc {
                         pages["_Sidebar"] = SidebarPage(module: module)
                         pages["_Footer"] = FooterPage()
                     case .html:
-                        pages["Home"] = HomePage(module: module)
+                        let brief = try options.brief
+                            .map { URL(fileURLWithPath: $0) }
+                            .map { try CommonMark.Document(String(contentsOf: $0)) }
+
+                        pages["Home"] = HomePage(module: module, brief: brief)
                     }
 
                     try pages.map { $0 }.parallelForEach {
