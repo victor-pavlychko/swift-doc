@@ -5,26 +5,28 @@ import HypertextLiteral
 
 struct CommonMarkPage: Page {
     let module: Module
-    let name: String
-    let content: CommonMark.Document
+    let doc: Doc
 
-    init(module: Module, name: String, content: CommonMark.Document) {
+    init(module: Module, doc: Doc) {
         self.module = module
-        self.name = name
-        self.content = content
+        self.doc = doc
     }
 
     // MARK: - Page
 
     var title: String {
-        return name
+        return doc.name
     }
 
     var document: CommonMark.Document {
-        return content
+        return doc.document
     }
 
     var html: HypertextLiteral.HTML {
-        return content.html
+        return #"""
+        <section id="introduction">
+            \#(doc.document.html)
+        </section>
+        """#
     }
 }
