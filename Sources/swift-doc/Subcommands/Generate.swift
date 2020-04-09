@@ -22,6 +22,10 @@ extension SwiftDoc {
                     help: "The path to the CommonMark file for the home page (html output only)")
             var brief: String?
 
+            @Option(name: .shortAndLong,
+                    help: "Paths to CommonMark files")
+            var docs: [String]
+
             @Option(name: [.long, .customShort("n")],
                     help: "The name of the module")
             var moduleName: String
@@ -103,6 +107,9 @@ extension SwiftDoc {
                             .map { try CommonMark.Document(String(contentsOf: $0)) }
 
                         pages["Home"] = HomePage(module: module, brief: brief)
+
+                        let documents = try Documents(paths: options.docs)
+                        pages.merge(documents.documents.map({ ($0.key, CommonMarkPage(module: module, name: $0.key, content: $0.value)) }), uniquingKeysWith: { $1 })
                     }
 
                     try pages.map { $0 }.parallelForEach {
